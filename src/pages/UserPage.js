@@ -202,13 +202,13 @@ export default function UserPage() {
         }}
       >
         <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
+          {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} /> */}
+          Activate
         </MenuItem>
 
         <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
+          {/* <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} /> */}
+          DeActiavte
         </MenuItem>
       </Popover>
     </>

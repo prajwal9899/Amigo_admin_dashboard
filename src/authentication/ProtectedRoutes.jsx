@@ -13,7 +13,7 @@ const ProtectedRoutes = ({ children }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getUser = async () => {
     try {
-      const res = await axios.post(`${process.env.REACT_APP_URL}/getUserData`,
+      const res = await axios.post(`${process.env.REACT_APP_URL}/admin/getAdminUserData`,
         { token: localStorage.getItem("token") },
         {
           headers: {
