@@ -19,13 +19,13 @@ import LoginPage from './pages/LoginPage';
 export default function App() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
+      <HashRouter>
         <ThemeProvider>
           <ScrollToTop />
           <StyledChart />
           <Router />
         </ThemeProvider>
-      </BrowserRouter>
+      </HashRouter>
     </HelmetProvider>
   );
 }
