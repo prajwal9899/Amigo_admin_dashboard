@@ -1,9 +1,10 @@
+/* eslint-disable arrow-body-style */
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import moment from 'moment'
+import moment from 'moment';
 // @mui
 import {
   Card,
@@ -42,12 +43,11 @@ const TABLE_HEAD = [
   { id: 'subscription_date', label: 'Subscription Date', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: 'expiresIn', label: 'ExpiresIn', alignRight: false },
-  { id: 'expiresIn', label: 'Action', alignRight: false },
+  { id: 'action', label: 'Action', alignRight: false },
   // { id: '' },
 ];
 
 // ----------------------------------------------------------------------
-
 
 export default function UserPage() {
   const [open, setOpen] = useState(null);
@@ -66,12 +66,15 @@ export default function UserPage() {
 
   const [subsUsers, setSubsUsers] = useState([]);
 
-  const [action, setAction] = useState('Action');
+  const [actionItem, setActionItem] = useState('Action');
 
   useEffect(() => {
+    getUsers()
+  }, []);
+
+  const getUsers = () => {
     axios
-      // .get(`${process.env.REACT_APP_URL}/get-defaulters`, {
-      .get(`http://localhost:8000/api/admin/getUsers`, {})
+      .get(`${process.env.REACT_APP_URL}/admin/getUsers`, {})
       .then((data) => {
         console.log(data.data, 'DATA');
         setSubsUsers(data.data);
@@ -79,14 +82,49 @@ export default function UserPage() {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }
 
-  const handleOpenMenu = (event) => {
+
+  const handleOpenMenu = (event, item) => {
     setOpen(event.currentTarget);
+    setActionItem(item);
   };
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+
+  const handleSubscription = async (event,action) => {
+    event.preventDefault()
+    setOpen(null)
+    if (action === 'Activate') {
+      axios.patch(`${process.env.REACT_APP_URL}/admin/subscription/`, {
+          params: {
+            userId: actionItem._id,
+            isSubscription : "Activated"
+          },
+        })
+        .then((res) => {
+          getUsers()
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+     axios
+      .patch(`${process.env.REACT_APP_URL}/admin/subscription/`, {
+        params: {
+          userId: actionItem._id,
+          isSubscription : "DeActivated"
+        },
+      })
+      .then((res) => {
+        getUsers()
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    }
   };
 
   return (
@@ -94,7 +132,6 @@ export default function UserPage() {
       <Helmet>
         <title> Users</title>
       </Helmet>
-
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -104,31 +141,18 @@ export default function UserPage() {
             New User
           </Button> */}
         </Stack>
-
         <Card>
-          {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
-                  // order={order}
-                  // orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  // rowCount={USERLIST.length}
-                  // numSelected={selected.length}
-                  // onRequestSort={handleRequestSort}
-                  // onSelectAllClick={handleSelectAllClick}
-                />
+                <UserListHead headLabel={TABLE_HEAD} />
                 <TableBody>
                   {subsUsers.map((item) => {
-                    
                     return (
-                      <TableRow hover key={item.id} tabIndex={-1} >
+                      <TableRow hover key={item._id} tabIndex={-1}>
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={item} onChange={(event) => handleClick(event, item.fullName)} /> */}
                         </TableCell>
-
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             {/* <Avatar alt={name} src={avatarUrl} /> */}
@@ -137,40 +161,33 @@ export default function UserPage() {
                             </Typography>
                           </Stack>
                         </TableCell>
-
                         <TableCell align="left">{item.branchName}</TableCell>
-
                         <TableCell align="left">{item.subscriptionType}</TableCell>
-
                         <TableCell align="left">{item.subscriptionDate}</TableCell>
-
                         <TableCell align="left">
-                          <Label color={(moment(item.subscriptionDate).diff(moment(), "days") < 0 && 'error') || 'success'}>{(moment(item.subscriptionDate).diff(moment(), "days") < 0 && 'Inactive') || 'Active'}</Label>
+                          <Label
+                            color={(item.isSubscription === "DeActivated" && 'error') || 'success'}
+                          >
+                            {(item.isSubscription === "DeActivated" && 'Inactive') || 'Active'}
+                          </Label>
                         </TableCell>
-
                         <TableCell align="left">
-                        {moment(item.subscriptionDate).diff(moment(), "days") < 0 ? "Expired" : `${moment(item.subscriptionDate).diff(moment(),"days")} days`}
+                          {moment(item.subscriptionDate).diff(moment(), 'days') < 0
+                            ? 'Expired'
+                            : `${moment(item.subscriptionDate).diff(moment(), 'days')} days`}
                         </TableCell>
-
                         <TableCell align="center">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, item)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                         </TableCell>
                       </TableRow>
                     );
                   })}
-                  {/* {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )} */}
                 </TableBody>
-
               </Table>
             </TableContainer>
           </Scrollbar>
-
           {/* <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
@@ -182,7 +199,6 @@ export default function UserPage() {
           /> */}
         </Card>
       </Container>
-
       <Popover
         open={Boolean(open)}
         anchorEl={open}
@@ -201,12 +217,11 @@ export default function UserPage() {
           },
         }}
       >
-        <MenuItem>
+        <MenuItem onClick={(event) => handleSubscription(event,'Activate')}>
           {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} /> */}
           Activate
         </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
+        <MenuItem sx={{ color: 'error.main' }} onClick={(event) => handleSubscription(event,'DeActivate')}>
           {/* <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} /> */}
           DeActiavte
         </MenuItem>
