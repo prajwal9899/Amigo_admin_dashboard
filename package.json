@@ -1,9 +1,6 @@
 {
-  "name": "@minimal/material-kit-react",
-  "author": "minimals.cc",
-  "licence": "MIT",
+  "name": "@Society/Portal",
   "version": "1.7.0",
-  "private": false,
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
