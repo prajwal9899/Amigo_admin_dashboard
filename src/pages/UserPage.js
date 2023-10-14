@@ -25,6 +25,7 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -33,8 +34,6 @@ import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
-
-// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'name', label: 'User Name', alignRight: false },
@@ -50,23 +49,18 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 export default function UserPage() {
-  const [open, setOpen] = useState(null);
-
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [open, setOpen] = useState(null);
   const [subsUsers, setSubsUsers] = useState([]);
-
   const [actionItem, setActionItem] = useState('Action');
+
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     getUsers()
@@ -94,14 +88,28 @@ export default function UserPage() {
     setOpen(null);
   };
 
-  const handleSubscription = async (event,action) => {
+  const handleSubscription = async (event, action) => {
     event.preventDefault()
     setOpen(null)
     if (action === 'Activate') {
       axios.patch(`${process.env.REACT_APP_URL}/admin/subscription/`, {
+        params: {
+          userId: actionItem._id,
+          isSubscription: "Activated"
+        },
+      })
+        .then((res) => {
+          getUsers()
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      axios
+        .patch(`${process.env.REACT_APP_URL}/admin/subscription/`, {
           params: {
             userId: actionItem._id,
-            isSubscription : "Activated"
+            isSubscription: "DeActivated"
           },
         })
         .then((res) => {
@@ -110,20 +118,6 @@ export default function UserPage() {
         .catch((err) => {
           console.log(err);
         });
-    } else {
-     axios
-      .patch(`${process.env.REACT_APP_URL}/admin/subscription/`, {
-        params: {
-          userId: actionItem._id,
-          isSubscription : "DeActivated"
-        },
-      })
-      .then((res) => {
-        getUsers()
-      })
-      .catch((err) => {
-        console.log(err);
-      });
     }
   };
 
@@ -217,11 +211,11 @@ export default function UserPage() {
           },
         }}
       >
-        <MenuItem onClick={(event) => handleSubscription(event,'Activate')}>
+        <MenuItem onClick={(event) => handleSubscription(event, 'Activate')}>
           {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} /> */}
           Activate
         </MenuItem>
-        <MenuItem sx={{ color: 'error.main' }} onClick={(event) => handleSubscription(event,'DeActivate')}>
+        <MenuItem sx={{ color: 'error.main' }} onClick={(event) => handleSubscription(event, 'DeActivate')}>
           {/* <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} /> */}
           DeActiavte
         </MenuItem>

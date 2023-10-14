@@ -3,6 +3,7 @@ import React, { ReactNode, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
+import { setAllUsers } from "../redux/features/allUsersSlice";
 import { hideLoading, showLoading } from "../redux/features/alertSlice";
 import { setUser } from "../redux/features/userSlice";
 
@@ -33,6 +34,23 @@ const ProtectedRoutes = ({ children }) => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    getUsers()
+    getUsers()
+  }, []);
+
+  const getUsers = () => {
+    axios
+      .get(`${process.env.REACT_APP_URL}/admin/getUsers`, {})
+      .then((data) => {
+        dispatch(setAllUsers(data.data));
+        console.log(data.data,"ASassasasasasasasdsagdgsdftrerter");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   useEffect(() => {
     if (!user) {

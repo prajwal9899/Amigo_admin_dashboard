@@ -15,6 +15,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState({
     email: '',
     password: '',
@@ -22,18 +23,17 @@ export default function LoginForm() {
 
   const submitForm = (e) => {
     e.preventDefault();
+    setIsSubmitting(true)
     const newUserdetails = {
       email: user.email,
       password: user.password,
     };
-
-    console.log(newUserdetails);
-
-      axios
+    axios
       .post(`${process.env.REACT_APP_URL}/admin/login`, newUserdetails)
       .then((res) => {
-        console.log(res,"Admin Login");
+        console.log(res, "Admin Login");
         if (res.data.status === 'failed') {
+        setIsSubmitting(false)
           toast.error(`${res.data.message}`, {
             position: 'top-right',
             autoClose: 5000,
@@ -44,7 +44,6 @@ export default function LoginForm() {
             progress: undefined,
             theme: 'colored',
           });
-
         }
         if (res.data.status === 'Success') {
           setUser({
@@ -53,10 +52,14 @@ export default function LoginForm() {
           });
           localStorage.setItem('token', res.data.token);
           navigate('/dashboard', { replace: true });
+          setIsSubmitting(false)
+
         }
       })
       .catch((err) => {
         console.log(err);
+        setIsSubmitting(false)
+
       });
   };
 
@@ -110,7 +113,7 @@ export default function LoginForm() {
         </Link> */}
       </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={submitForm}>
+      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={submitForm} loading={isSubmitting}>  
         Login
       </LoadingButton>
     </>
